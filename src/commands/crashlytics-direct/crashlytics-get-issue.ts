@@ -1,8 +1,8 @@
-import { Command } from "../command";
-import { FirebaseError } from "../error";
-import { Options } from "../options";
-import { requireAuth } from "../requireAuth";
-import { getIssue } from "../crashlytics/issues";
+import { Command } from "../../command";
+import { FirebaseError } from "../../error";
+import { Options } from "../../options";
+import { requireAuth } from "../../requireAuth";
+import { getIssue } from "../../crashlytics/issues";
 import { formatIssue } from "./crashlytics-formatter";
 
 interface CommandOptions extends Options {

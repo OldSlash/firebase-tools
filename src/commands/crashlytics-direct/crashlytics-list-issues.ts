@@ -1,9 +1,9 @@
-import { Command } from "../command";
-import { FirebaseError } from "../error";
-import { Options } from "../options";
-import { requireAuth } from "../requireAuth";
-import { getReport, simplifyReport, CrashlyticsReport } from "../crashlytics/reports";
-import { validateEventFilters } from "../crashlytics/filters";
+import { Command } from "../../command";
+import { FirebaseError } from "../../error";
+import { Options } from "../../options";
+import { requireAuth } from "../../requireAuth";
+import { getReport, simplifyReport, CrashlyticsReport } from "../../crashlytics/reports";
+import { validateEventFilters } from "../../crashlytics/filters";
 import { buildEventFilter, formatIssuesTable } from "./crashlytics-formatter";
 
 interface CommandOptions extends Options {
@@ -26,11 +26,20 @@ export const command = new Command("crashlytics:issues:list")
   .option("--start-time <time>", "filter start time (ISO 8601)")
   .option("--end-time <time>", "filter end time (ISO 8601)")
   .option("--error-type <types>", "error type filter: FATAL,NON_FATAL,ANR (comma-separated)")
-  .option("--signal <signals>", "signal filter: SIGNAL_EARLY,SIGNAL_FRESH,SIGNAL_REGRESSED,SIGNAL_REPETITIVE (comma-separated)")
-  .option("--app-version <versions>", 'app version filter (comma-separated, format: "version (build)")')
+  .option(
+    "--signal <signals>",
+    "signal filter: SIGNAL_EARLY,SIGNAL_FRESH,SIGNAL_REGRESSED,SIGNAL_REPETITIVE (comma-separated)",
+  )
+  .option(
+    "--app-version <versions>",
+    'app version filter (comma-separated, format: "version (build)")',
+  )
   .option("--os <names>", 'OS filter (comma-separated, format: "os (version)")')
   .option("--device <names>", 'device filter (comma-separated, format: "manufacturer (model)")')
-  .option("--form-factor <factors>", "form factor filter: PHONE,TABLET,DESKTOP,TV,WATCH (comma-separated)")
+  .option(
+    "--form-factor <factors>",
+    "form factor filter: PHONE,TABLET,DESKTOP,TV,WATCH (comma-separated)",
+  )
   .before(requireAuth)
   .action(async (options: CommandOptions) => {
     if (!options.app) {

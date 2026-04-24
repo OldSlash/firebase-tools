@@ -1,8 +1,8 @@
 import { expect } from "chai";
 import * as sinon from "sinon";
 
-import { logger } from "../logger";
-import { ErrorType, State, ReportGroup, Issue, Event, Frame } from "../crashlytics/types";
+import { logger } from "../../logger";
+import { ErrorType, State, ReportGroup, Issue, Event, Frame } from "../../crashlytics/types";
 import {
   buildEventFilter,
   formatFrames,

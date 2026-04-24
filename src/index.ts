@@ -4,6 +4,7 @@ import * as leven from "leven";
 
 import { logger, useConsoleLoggers } from "./logger";
 import { isCommandModule, CLIClient } from "./command";
+import { registerCrashlyticsDirectCommands } from "./commands/crashlytics-direct/register";
 
 const pkg = require("../package.json");
 
@@ -59,6 +60,7 @@ const client: CLIClient = {
 };
 
 require("./commands").load(client);
+registerCrashlyticsDirectCommands(client);
 
 /**
  * Checks to see if there is a different command similar to the provided one.

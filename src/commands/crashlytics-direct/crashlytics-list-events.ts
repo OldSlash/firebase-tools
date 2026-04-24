@@ -1,14 +1,10 @@
-import { Command } from "../command";
-import { FirebaseError } from "../error";
-import { Options } from "../options";
-import { requireAuth } from "../requireAuth";
-import { listEvents } from "../crashlytics/events";
-import { validateEventFilters } from "../crashlytics/filters";
-import {
-  buildEventFilter,
-  formatEventsSummary,
-  formatEventDetail,
-} from "./crashlytics-formatter";
+import { Command } from "../../command";
+import { FirebaseError } from "../../error";
+import { Options } from "../../options";
+import { requireAuth } from "../../requireAuth";
+import { listEvents } from "../../crashlytics/events";
+import { validateEventFilters } from "../../crashlytics/filters";
+import { buildEventFilter, formatEventsSummary, formatEventDetail } from "./crashlytics-formatter";
 
 interface CommandOptions extends Options {
   app?: string;
@@ -35,10 +31,16 @@ export const command = new Command("crashlytics:events:list")
   .option("--end-time <time>", "filter end time (ISO 8601)")
   .option("--error-type <types>", "error type filter: FATAL,NON_FATAL,ANR (comma-separated)")
   .option("--signal <signals>", "signal filter (comma-separated)")
-  .option("--app-version <versions>", 'app version filter (comma-separated, format: "version (build)")')
+  .option(
+    "--app-version <versions>",
+    'app version filter (comma-separated, format: "version (build)")',
+  )
   .option("--os <names>", 'OS filter (comma-separated, format: "os (version)")')
   .option("--device <names>", 'device filter (comma-separated, format: "manufacturer (model)")')
-  .option("--form-factor <factors>", "form factor filter: PHONE,TABLET,DESKTOP,TV,WATCH (comma-separated)")
+  .option(
+    "--form-factor <factors>",
+    "form factor filter: PHONE,TABLET,DESKTOP,TV,WATCH (comma-separated)",
+  )
   .before(requireAuth)
   .action(async (options: CommandOptions) => {
     if (!options.app) {

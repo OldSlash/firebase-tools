@@ -1,19 +1,18 @@
 import * as Table from "cli-table3";
 
-import { logger } from "../logger";
-import { EventFilter } from "../crashlytics/filters";
+import { logger } from "../../logger";
+import { EventFilter } from "../../crashlytics/filters";
 import {
   Event,
   Exception,
   Frame,
   Issue,
-  Log,
   ReportGroup,
   Thread,
   ErrorType,
   Breadcrumb,
   Error as CrashlyticsError,
-} from "../crashlytics/types";
+} from "../../crashlytics/types";
 
 /** Options interface matching CLI flags for filter building. */
 interface FilterOptions {
@@ -197,10 +196,7 @@ export function formatEventDetail(event: Event): void {
   // Threads (only crashed/blamed for fatal/ANR)
   if (event.threads?.length) {
     let threads = event.threads;
-    if (
-      event.issue?.errorType === ErrorType.FATAL ||
-      event.issue?.errorType === ErrorType.ANR
-    ) {
+    if (event.issue?.errorType === ErrorType.FATAL || event.issue?.errorType === ErrorType.ANR) {
       threads = threads.filter((t) => t.crashed || t.blamed);
     }
     for (const thread of threads) {

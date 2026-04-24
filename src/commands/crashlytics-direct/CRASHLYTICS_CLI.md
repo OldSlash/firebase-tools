@@ -4,13 +4,13 @@
 
 Five Crashlytics operations previously available only through the Firebase MCP server are now accessible as direct Firebase CLI commands:
 
-| Command | Description |
-|---------|-------------|
-| `firebase crashlytics:issues:list` | List top Crashlytics issues for an app |
-| `firebase crashlytics:issues:get` | Get details for a single issue |
-| `firebase crashlytics:issues:update` | Update issue state (OPEN/CLOSED/MUTED) |
-| `firebase crashlytics:events:list` | List recent events for an issue or variant |
-| `firebase crashlytics:events:batchGet` | Get events by resource name |
+| Command                                | Description                                |
+| -------------------------------------- | ------------------------------------------ |
+| `firebase crashlytics:issues:list`     | List top Crashlytics issues for an app     |
+| `firebase crashlytics:issues:get`      | Get details for a single issue             |
+| `firebase crashlytics:issues:update`   | Update issue state (OPEN/CLOSED/MUTED)     |
+| `firebase crashlytics:events:list`     | List recent events for an issue or variant |
+| `firebase crashlytics:events:batchGet` | Get events by resource name                |
 
 ## Why a Standalone Module
 
@@ -33,7 +33,8 @@ src/crashlytics/              # Business logic (UNCHANGED, shared)
   ├── types.ts                #   All TypeScript interfaces
   └── utils.ts                #   API client, parseProjectNumber()
 
-src/commands/                 # CLI commands (NEW)
+src/commands/crashlytics-direct/      # CLI commands (NEW, isolated)
+  ├── register.ts                     # Registers commands without src/commands/index.ts
   ├── crashlytics-formatter.ts        # Human-readable output formatting
   ├── crashlytics-list-issues.ts      # crashlytics:issues:list command
   ├── crashlytics-get-issue.ts        # crashlytics:issues:get command
@@ -47,14 +48,15 @@ src/mcp/tools/crashlytics/   # MCP tools (UNCHANGED)
 
 ## Integration Points
 
-Only one existing file was modified:
+Only one existing registration hook is needed:
 
-- **`src/commands/index.ts`** — 6 lines added to register the new commands via `loadCommand()`.
+- **`src/index.ts`** calls `registerCrashlyticsDirectCommands(client)` after the built-in command tree loads.
+- **`src/commands/index.ts`** is intentionally not used for these commands.
 
 ## Merge Conflict Minimization
 
-- All new code is in new files — no modifications to existing business logic or MCP code.
-- The single edit to `index.ts` is a contiguous block inserted between existing `crashlytics.mappingfile` and `database` registrations.
+- All new command code is isolated under `src/commands/crashlytics-direct/` — no modifications to existing business logic or MCP code.
+- The direct command registrar preserves existing `crashlytics:symbols:*` and `crashlytics:mappingfile:*` registrations.
 - The formatter is self-contained and does not share code with the MCP presentation layer.
 
 ## Usage Examples
@@ -86,13 +88,13 @@ firebase crashlytics:events:batchGet --app 1:123456:android:abcdef --name "proje
 
 Available on `crashlytics:issues:list` and `crashlytics:events:list`:
 
-| Flag | Description |
-|------|-------------|
-| `--start-time` | ISO 8601 start time (max 90 days ago) |
-| `--end-time` | ISO 8601 end time |
-| `--error-type` | FATAL, NON_FATAL, ANR (comma-separated) |
-| `--signal` | SIGNAL_EARLY, SIGNAL_FRESH, SIGNAL_REGRESSED, SIGNAL_REPETITIVE |
-| `--app-version` | App version display names |
-| `--os` | OS display names |
-| `--device` | Device display names |
-| `--form-factor` | PHONE, TABLET, DESKTOP, TV, WATCH |
+| Flag            | Description                                                     |
+| --------------- | --------------------------------------------------------------- |
+| `--start-time`  | ISO 8601 start time (max 90 days ago)                           |
+| `--end-time`    | ISO 8601 end time                                               |
+| `--error-type`  | FATAL, NON_FATAL, ANR (comma-separated)                         |
+| `--signal`      | SIGNAL_EARLY, SIGNAL_FRESH, SIGNAL_REGRESSED, SIGNAL_REPETITIVE |
+| `--app-version` | App version display names                                       |
+| `--os`          | OS display names                                                |
+| `--device`      | Device display names                                            |
+| `--form-factor` | PHONE, TABLET, DESKTOP, TV, WATCH                               |

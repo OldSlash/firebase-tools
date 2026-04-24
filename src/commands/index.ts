@@ -67,13 +67,6 @@ export function load(client: CLIClient): CLIClient {
   client.crashlytics.mappingfile = {};
   client.crashlytics.mappingfile.generateid = loadCommand("crashlytics-mappingfile-generateid");
   client.crashlytics.mappingfile.upload = loadCommand("crashlytics-mappingfile-upload");
-  client.crashlytics.issues = {};
-  client.crashlytics.issues.list = loadCommand("crashlytics-list-issues");
-  client.crashlytics.issues.get = loadCommand("crashlytics-get-issue");
-  client.crashlytics.issues.update = loadCommand("crashlytics-update-issue");
-  client.crashlytics.events = {};
-  client.crashlytics.events.list = loadCommand("crashlytics-list-events");
-  client.crashlytics.events.batchGet = loadCommand("crashlytics-batch-get-events");
   client.database = {};
   client.database.get = loadCommand("database-get");
   client.database.import = loadCommand("database-import");

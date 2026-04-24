@@ -1,11 +1,11 @@
-import { Command } from "../command";
-import { FirebaseError } from "../error";
-import { Options } from "../options";
-import { requireAuth } from "../requireAuth";
-import { updateIssue } from "../crashlytics/issues";
-import { State } from "../crashlytics/types";
+import { Command } from "../../command";
+import { FirebaseError } from "../../error";
+import { Options } from "../../options";
+import { requireAuth } from "../../requireAuth";
+import { updateIssue } from "../../crashlytics/issues";
+import { State } from "../../crashlytics/types";
 import { formatIssue } from "./crashlytics-formatter";
-import * as utils from "../utils";
+import * as utils from "../../utils";
 
 const VALID_STATES = Object.values(State).filter((s) => s !== State.STATE_UNSPECIFIED);
 
@@ -33,7 +33,9 @@ export const command = new Command("crashlytics:issues:update")
     }
     const state = options.state.toUpperCase() as State;
     if (!(VALID_STATES as State[]).includes(state)) {
-      throw new FirebaseError(`Invalid state "${options.state}". Valid values: ${VALID_STATES.join(", ")}`);
+      throw new FirebaseError(
+        `Invalid state "${options.state}". Valid values: ${VALID_STATES.join(", ")}`,
+      );
     }
     const updated = await updateIssue(options.app, options.issue, state);
     utils.logSuccess(`Updated issue ${options.issue} state to ${state}.`);
