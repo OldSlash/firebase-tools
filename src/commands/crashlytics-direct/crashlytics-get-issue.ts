@@ -3,7 +3,8 @@ import { FirebaseError } from "../../error";
 import { Options } from "../../options";
 import { requireAuth } from "../../requireAuth";
 import { getIssue } from "../../crashlytics/issues";
-import { formatIssue } from "./crashlytics-formatter";
+import { formatIssueResult } from "./crashlytics-formatter";
+import { buildIssueGetResult } from "./crashlytics-output";
 
 interface CommandOptions extends Options {
   app?: string;
@@ -23,6 +24,7 @@ export const command = new Command("crashlytics:issues:get")
       throw new FirebaseError("--issue <issueId> is required");
     }
     const issue = await getIssue(options.app, options.issue);
-    formatIssue(issue);
-    return issue;
+    const result = buildIssueGetResult({ appId: options.app, issueId: options.issue }, issue);
+    formatIssueResult(result);
+    return result;
   });

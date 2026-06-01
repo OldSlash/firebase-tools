@@ -4,7 +4,8 @@ import { Options } from "../../options";
 import { requireAuth } from "../../requireAuth";
 import { listEvents } from "../../crashlytics/events";
 import { validateEventFilters } from "../../crashlytics/filters";
-import { buildEventFilter, formatEventsSummary, formatEventDetail } from "./crashlytics-formatter";
+import { buildEventFilter, formatEventsResult } from "./crashlytics-formatter";
+import { buildEventsListResult } from "./crashlytics-output";
 
 interface CommandOptions extends Options {
   app?: string;
@@ -52,10 +53,16 @@ export const command = new Command("crashlytics:events:list")
     const filter = validateEventFilters(buildEventFilter(options));
     const pageSize = options.pageSize || 10;
     const response = await listEvents(options.app, filter, pageSize);
-    const events = response.events || [];
-    formatEventsSummary(events);
-    for (const event of events) {
-      formatEventDetail(event);
-    }
-    return response;
+    const result = buildEventsListResult(
+      {
+        appId: options.app,
+        pageSize,
+        filter,
+        issueId: options.issue,
+        variantId: options.variant,
+      },
+      response,
+    );
+    formatEventsResult(result);
+    return result;
   });

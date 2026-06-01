@@ -3,7 +3,8 @@ import { FirebaseError } from "../../error";
 import { Options } from "../../options";
 import { requireAuth } from "../../requireAuth";
 import { batchGetEvents } from "../../crashlytics/events";
-import { formatEventsSummary, formatEventDetail } from "./crashlytics-formatter";
+import { formatEventsResult } from "./crashlytics-formatter";
+import { buildEventsBatchGetResult } from "./crashlytics-output";
 
 interface CommandOptions extends Options {
   app?: string;
@@ -29,10 +30,7 @@ export const command = new Command("crashlytics:events:batchGet")
       throw new FirebaseError("At least one event resource name is required");
     }
     const response = await batchGetEvents(options.app, names);
-    const events = response.events || [];
-    formatEventsSummary(events);
-    for (const event of events) {
-      formatEventDetail(event);
-    }
-    return response;
+    const result = buildEventsBatchGetResult({ appId: options.app, names }, response);
+    formatEventsResult(result);
+    return result;
   });

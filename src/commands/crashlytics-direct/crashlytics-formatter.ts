@@ -13,6 +13,14 @@ import {
   Breadcrumb,
   Error as CrashlyticsError,
 } from "../../crashlytics/types";
+import {
+  EventsBatchGetResult,
+  EventsListResult,
+  IssueGetResult,
+  IssuesListResult,
+  IssueListItem,
+  IssueUpdateResult,
+} from "./crashlytics-output";
 
 /** Options interface matching CLI flags for filter building. */
 interface FilterOptions {
@@ -111,6 +119,27 @@ export function formatIssuesTable(groups: ReportGroup[]): void {
   logger.info(`Found ${groups.filter((g) => g.issue).length} issues.`);
 }
 
+/** Print a structured issues result as the existing human-readable table. */
+export function formatIssuesResult(result: IssuesListResult): void {
+  const issues = result.data.issues;
+  if (!issues.length) {
+    logger.info("No issues found.");
+    return;
+  }
+
+  const table = new Table({
+    head: ["Issue ID", "Title", "Subtitle", "Type", "State", "Events", "Users"],
+    style: { head: ["bold"] },
+  });
+
+  for (const issue of issues) {
+    table.push(issueTableRow(issue));
+  }
+
+  logger.info(table.toString());
+  logger.info(`Found ${issues.length} issues.`);
+}
+
 /** Print a single issue in key-value format. */
 export function formatIssue(issue: Issue): void {
   logger.info(`Issue:          ${issue.id || ""}`);
@@ -137,6 +166,11 @@ export function formatIssue(issue: Issue): void {
   }
 }
 
+/** Print a structured issue result as the existing human-readable key-value details. */
+export function formatIssueResult(result: IssueGetResult | IssueUpdateResult): void {
+  formatIssue(result.data.issue);
+}
+
 /** Print a summary table of events. */
 export function formatEventsSummary(events: Event[]): void {
   if (!events || events.length === 0) {
@@ -161,6 +195,15 @@ export function formatEventsSummary(events: Event[]): void {
   }
 
   logger.info(table.toString());
+}
+
+/** Print a structured events result as the existing human-readable summary and details. */
+export function formatEventsResult(result: EventsListResult | EventsBatchGetResult): void {
+  const events = result.data.events;
+  formatEventsSummary(events);
+  for (const event of events) {
+    formatEventDetail(event);
+  }
 }
 
 /** Print detailed output for a single event, including stack traces, logs, and breadcrumbs. */
@@ -275,6 +318,18 @@ function formatBreadcrumb(b: Breadcrumb): void {
     .join(", ");
   const params = paramStr ? ` { ${paramStr} }` : "";
   logger.info(`  [${b.eventTime || ""}] ${b.title || ""}${params}`);
+}
+
+function issueTableRow(issue: IssueListItem): string[] {
+  return [
+    issue.id || "",
+    truncate(issue.title || "", 30),
+    truncate(issue.subtitle || "", 25),
+    issue.errorType || "",
+    issue.state || "",
+    issue.metrics?.eventsCount?.toLocaleString() ?? "",
+    issue.metrics?.impactedUsersCount?.toLocaleString() ?? "",
+  ];
 }
 
 function truncate(str: string, maxLen: number): string {

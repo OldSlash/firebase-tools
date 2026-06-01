@@ -10,7 +10,15 @@ import {
   formatIssue,
   formatEventsSummary,
   formatEventDetail,
+  formatEventsResult,
+  formatIssueResult,
+  formatIssuesResult,
 } from "./crashlytics-formatter";
+import {
+  buildEventsListResult,
+  buildIssueGetResult,
+  buildIssuesListResult,
+} from "./crashlytics-output";
 
 describe("crashlytics-formatter", () => {
   let loggerStub: sinon.SinonStub;
@@ -121,6 +129,36 @@ describe("crashlytics-formatter", () => {
     });
   });
 
+  describe("formatIssuesResult", () => {
+    it("should print a table for a structured issues result", () => {
+      const result = buildIssuesListResult(
+        { appId: "app-id", pageSize: 10, filter: {} },
+        {
+          groups: [
+            {
+              metrics: [{ startTime: "", endTime: "", eventsCount: 100, impactedUsersCount: 50 }],
+              subgroups: [],
+              issue: {
+                id: "abc123",
+                title: "MainActivity.java",
+                subtitle: "NullPointerException",
+                errorType: ErrorType.FATAL,
+                state: State.OPEN,
+              },
+            },
+          ],
+        },
+      );
+
+      formatIssuesResult(result);
+
+      const output = loggerStub.args.map((a: any[]) => a[0]).join("\n");
+      expect(output).to.contain("abc123");
+      expect(output).to.contain("FATAL");
+      expect(output).to.contain("1 issues");
+    });
+  });
+
   describe("formatIssue", () => {
     it("should print issue key-value pairs", () => {
       const issue: Issue = {
@@ -143,6 +181,25 @@ describe("crashlytics-formatter", () => {
       expect(output).to.contain("1.0.0");
       expect(output).to.contain("2.0.0");
       expect(output).to.contain("https://console.firebase.google.com/test");
+    });
+  });
+
+  describe("formatIssueResult", () => {
+    it("should print key-value pairs for a structured issue result", () => {
+      const issue: Issue = {
+        id: "abc123",
+        title: "MainActivity.java",
+        subtitle: "NullPointerException",
+        errorType: ErrorType.FATAL,
+        state: State.OPEN,
+      };
+
+      formatIssueResult(buildIssueGetResult({ appId: "app-id", issueId: "abc123" }, issue));
+
+      const output = loggerStub.args.map((a: any[]) => a[0]).join("\n");
+      expect(output).to.contain("abc123");
+      expect(output).to.contain("MainActivity.java");
+      expect(output).to.contain("OPEN");
     });
   });
 
@@ -214,6 +271,32 @@ describe("crashlytics-formatter", () => {
       const output = loggerStub.args.map((a: any[]) => a[0]).join("\n");
       expect(output).to.contain("userId: user-123");
       expect(output).to.contain("screen: home");
+    });
+  });
+
+  describe("formatEventsResult", () => {
+    it("should print summary and details for a structured events result", () => {
+      const result = buildEventsListResult(
+        { appId: "app-id", pageSize: 10, filter: { issueId: "abc123" }, issueId: "abc123" },
+        {
+          events: [
+            {
+              eventId: "evt001",
+              eventTime: "2025-03-15T10:30:00Z",
+              issueTitle: "Crash",
+              device: { displayName: "Pixel 6" },
+              operatingSystem: { displayName: "Android (14)" },
+            },
+          ],
+        },
+      );
+
+      formatEventsResult(result);
+
+      const output = loggerStub.args.map((a: any[]) => a[0]).join("\n");
+      expect(output).to.contain("evt001");
+      expect(output).to.contain("Pixel 6");
+      expect(output).to.contain("---");
     });
   });
 });

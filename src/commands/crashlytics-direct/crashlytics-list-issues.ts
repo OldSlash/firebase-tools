@@ -4,7 +4,8 @@ import { Options } from "../../options";
 import { requireAuth } from "../../requireAuth";
 import { getReport, simplifyReport, CrashlyticsReport } from "../../crashlytics/reports";
 import { validateEventFilters } from "../../crashlytics/filters";
-import { buildEventFilter, formatIssuesTable } from "./crashlytics-formatter";
+import { buildEventFilter, formatIssuesResult } from "./crashlytics-formatter";
+import { buildIssuesListResult } from "./crashlytics-output";
 
 interface CommandOptions extends Options {
   app?: string;
@@ -50,7 +51,7 @@ export const command = new Command("crashlytics:issues:list")
     const report = simplifyReport(
       await getReport(CrashlyticsReport.TOP_ISSUES, options.app, filter, pageSize),
     );
-    const groups = report.groups?.filter((g) => g.issue) || [];
-    formatIssuesTable(groups);
-    return report;
+    const result = buildIssuesListResult({ appId: options.app, pageSize, filter }, report);
+    formatIssuesResult(result);
+    return result;
   });

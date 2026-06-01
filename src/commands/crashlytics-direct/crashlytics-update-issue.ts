@@ -4,8 +4,9 @@ import { Options } from "../../options";
 import { requireAuth } from "../../requireAuth";
 import { updateIssue } from "../../crashlytics/issues";
 import { State } from "../../crashlytics/types";
-import { formatIssue } from "./crashlytics-formatter";
+import { formatIssueResult } from "./crashlytics-formatter";
 import * as utils from "../../utils";
+import { buildIssueUpdateResult } from "./crashlytics-output";
 
 const VALID_STATES = Object.values(State).filter((s) => s !== State.STATE_UNSPECIFIED);
 
@@ -38,7 +39,11 @@ export const command = new Command("crashlytics:issues:update")
       );
     }
     const updated = await updateIssue(options.app, options.issue, state);
+    const result = buildIssueUpdateResult(
+      { appId: options.app, issueId: options.issue, requestedState: state },
+      updated,
+    );
     utils.logSuccess(`Updated issue ${options.issue} state to ${state}.`);
-    formatIssue(updated);
-    return updated;
+    formatIssueResult(result);
+    return result;
   });
